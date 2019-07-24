@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.polynomial.polynomial import polyfit
-import seaborn as sns
 import pandas as pd
 
 # Fixing random state for reproducibility
@@ -9,14 +8,17 @@ np.random.seed(100)
 
 SIZE = 100
 
-
 def get_linear_points():
-    # X is range 0 to 50
-    x = np.arange(0, SIZE, 2)
-    # Y is X +/- a random number
-    y = x + (np.random.rand(x.shape[0]) * 10)
+    """
+        Returns a Linear Dataset with x and y
 
-    return x, y
+        It has been sourced from https://www.kaggle.com/andonians/random-linear-regression#train.csv
+    :return:
+        a linear dataset
+    """
+    df = pd.read_csv('dataset/linear.csv')
+
+    return df['x'], df['y']
 
 
 def get_non_linear_points():
@@ -28,7 +30,6 @@ def get_non_linear_points():
     y = SIZE - (10 ** (x/49))
 
     return x, y
-
 
 
 def plot(fig_index, get_points, independent_variable_name):
@@ -114,7 +115,7 @@ def plot_residual_frequency_dist(fig_index, get_points, independent_variable_nam
 
 if __name__ == '__main__':
     linear_points = get_linear_points()
-    plot(1, linear_points, "Number of Hours Studied")
+    #plot(1, linear_points, "Number of Hours Studied")
     #plot_observed_vs_predicted(2, linear_points, "Number of Hours Studied")
     #plot_predicted_vs_residual(3, linear_points, "Number of Hours Studied")
     #plot_residual_frequency_dist(4, linear_points, "Number of Hours Studied")
@@ -124,5 +125,5 @@ if __name__ == '__main__':
     plot(5, non_linear_points, "Number of Hours Played")
     #plot_observed_vs_predicted(6, non_linear_points, "Number of Hours Played")
     #plot_predicted_vs_residual(7, non_linear_points, "Number of Hours Played")
-    #plot_residual_frequency_dist(8, non_linear_points, "Number of Hours Played")
+    plot_residual_frequency_dist(8, non_linear_points, "Number of Hours Played")
     plt.show()
