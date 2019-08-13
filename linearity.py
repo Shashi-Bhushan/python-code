@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author: Shashi Bhushan <sbhushan1@outlook.com>
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.polynomial.polynomial import polyfit
