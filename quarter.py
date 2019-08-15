@@ -22,10 +22,15 @@ def main():
     dataset3.columns = ['x', 'y']
     dataset4.columns = ['x', 'y']
 
-    util.plot_df(dataset1, 1)
-    util.plot_df(dataset2, 2)
-    util.plot_df(dataset3, 3)
-    util.plot_df(dataset4, 4)
+    util.plot_df(dataset1, 1, "Dataset 1")
+    util.plot_df(dataset2, 2, "Dataset 2")
+    util.plot_df(dataset3, 3, "Dataset 3")
+    util.plot_df(dataset4, 4, "Dataset 4")
+
+    print("Dataset 1 \n{}\n".format(dataset1.describe()))
+    print("Dataset 2 \n{}\n".format(dataset2.describe()))
+    print("Dataset 3 \n{}\n".format(dataset3.describe()))
+    print("Dataset 4 \n{}\n".format(dataset4.describe()))
 
 
 if __name__ == '__main__':

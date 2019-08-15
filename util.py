@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 from numpy.polynomial.polynomial import polyfit
 
 
-def plot_df(dataframe, fignum):
-    plt.figure(fignum, figsize=(12, 8), dpi=60)
+def plot_df(dataframe, fignum, title):
+    plt.figure(fignum, figsize=(6, 6), dpi=60)
 
     plt.plot(dataframe['x'], dataframe['y'], 'o', c='g')
 
@@ -20,5 +20,10 @@ def plot_df(dataframe, fignum):
 
     plt.xlim(3, 20)
     plt.ylim(3, 13)
+
+    plt.xlabel("X Axis")
+    plt.ylabel("Y Axis")
+
+    plt.title(title)
 
     plt.show()
