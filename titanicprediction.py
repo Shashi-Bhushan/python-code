@@ -66,31 +66,55 @@ test_df.Age.fillna(test_df.Age.mean(), inplace=True)
 genders = {"male": 0, "female": 1}
 port = {"S": 0, "C": 1, "Q": 2}
 
-for dataset in [train_df, test_df]:
-    dataset['Embarked'].fillna('S', inplace=True)
+train_df['Embarked'].fillna('S', inplace=True)
 
-    dataset['Fare'].fillna(0, inplace=True)
-    dataset['Fare'] = dataset['Fare'].astype(int)
+train_df['Fare'].fillna(0, inplace=True)
+train_df['Fare'] = train_df['Fare'].astype(int)
 
-    dataset['Sex'] = dataset['Sex'].map(genders)
-    dataset['Sex'] = dataset['Sex'].astype(int)
+train_df['Sex'] = train_df['Sex'].map(genders)
+train_df['Sex'] = train_df['Sex'].astype(int)
 
-    dataset['Embarked'] = dataset['Embarked'].map(port)
-    df = pd.get_dummies(dataset['Embarked'], drop_first=True)
-    df.columns = ['Embarked_S', 'Embarked_C']
+train_df['Embarked'] = train_df['Embarked'].map(port)
+df = pd.get_dummies(train_df['Embarked'], drop_first=True)
+df.columns = ['Embarked_S', 'Embarked_C']
 
-    dataset.drop(['Embarked'], axis=1, inplace=True)
-    dataset = pd.concat([dataset, df], axis=1)
+train_df.drop(['Embarked'], axis=1, inplace=True)
+train_df = pd.concat([train_df, df], axis=1)
 
-    dataset['Age'] = dataset['Age'].astype(int)
-    dataset.loc[dataset['Age'] <= 11, 'Age'] = 0
-    dataset.loc[(dataset['Age'] > 11) & (dataset['Age'] <= 18), 'Age'] = 1
-    dataset.loc[(dataset['Age'] > 18) & (dataset['Age'] <= 22), 'Age'] = 2
-    dataset.loc[(dataset['Age'] > 22) & (dataset['Age'] <= 27), 'Age'] = 3
-    dataset.loc[(dataset['Age'] > 27) & (dataset['Age'] <= 33), 'Age'] = 4
-    dataset.loc[(dataset['Age'] > 33) & (dataset['Age'] <= 40), 'Age'] = 5
-    dataset.loc[(dataset['Age'] > 40) & (dataset['Age'] <= 66), 'Age'] = 6
-    dataset.loc[dataset['Age'] > 66, 'Age'] = 6
+train_df['Age'] = train_df['Age'].astype(int)
+train_df.loc[train_df['Age'] <= 11, 'Age'] = 0
+train_df.loc[(train_df['Age'] > 11) & (train_df['Age'] <= 18), 'Age'] = 1
+train_df.loc[(train_df['Age'] > 18) & (train_df['Age'] <= 22), 'Age'] = 2
+train_df.loc[(train_df['Age'] > 22) & (train_df['Age'] <= 27), 'Age'] = 3
+train_df.loc[(train_df['Age'] > 27) & (train_df['Age'] <= 33), 'Age'] = 4
+train_df.loc[(train_df['Age'] > 33) & (train_df['Age'] <= 40), 'Age'] = 5
+train_df.loc[(train_df['Age'] > 40) & (train_df['Age'] <= 66), 'Age'] = 6
+train_df.loc[train_df['Age'] > 66, 'Age'] = 6
+
+test_df['Embarked'].fillna('S', inplace=True)
+
+test_df['Fare'].fillna(0, inplace=True)
+test_df['Fare'] = test_df['Fare'].astype(int)
+
+test_df['Sex'] = test_df['Sex'].map(genders)
+test_df['Sex'] = test_df['Sex'].astype(int)
+
+test_df['Embarked'] = test_df['Embarked'].map(port)
+df = pd.get_dummies(test_df['Embarked'], drop_first=True)
+df.columns = ['Embarked_S', 'Embarked_C']
+
+test_df.drop(['Embarked'], axis=1, inplace=True)
+test_df = pd.concat([test_df, df], axis=1)
+
+test_df['Age'] = test_df['Age'].astype(int)
+test_df.loc[test_df['Age'] <= 11, 'Age'] = 0
+test_df.loc[(test_df['Age'] > 11) & (test_df['Age'] <= 18), 'Age'] = 1
+test_df.loc[(test_df['Age'] > 18) & (test_df['Age'] <= 22), 'Age'] = 2
+test_df.loc[(test_df['Age'] > 22) & (test_df['Age'] <= 27), 'Age'] = 3
+test_df.loc[(test_df['Age'] > 27) & (test_df['Age'] <= 33), 'Age'] = 4
+test_df.loc[(test_df['Age'] > 33) & (test_df['Age'] <= 40), 'Age'] = 5
+test_df.loc[(test_df['Age'] > 40) & (test_df['Age'] <= 66), 'Age'] = 6
+test_df.loc[test_df['Age'] > 66, 'Age'] = 6
 
 X_train = train_df.drop("Survived", axis=1)
 Y_train = train_df["Survived"]
