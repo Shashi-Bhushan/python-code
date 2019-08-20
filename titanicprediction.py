@@ -76,6 +76,11 @@ for dataset in [train_df, test_df]:
     dataset['Sex'] = dataset['Sex'].astype(int)
 
     dataset['Embarked'] = dataset['Embarked'].map(port)
+    df = pd.get_dummies(dataset['Embarked'], drop_first=True)
+    df.columns = ['Embarked_S', 'Embarked_C']
+
+    dataset.drop(['Embarked'], axis=1, inplace=True)
+    dataset = pd.concat([dataset, df], axis=1)
 
     dataset['Age'] = dataset['Age'].astype(int)
     dataset.loc[dataset['Age'] <= 11, 'Age'] = 0
@@ -92,7 +97,7 @@ Y_train = train_df["Survived"]
 X_test  = test_df.drop('PassengerId', axis=1).copy()
 
 seed = 7
-scoring = 'accuracy'
+scoring = 'recall'
 
 # Spot Check Algorithms
 models = []
@@ -121,7 +126,6 @@ random_forest.fit(X_train, Y_train)
 
 Y_prediction = random_forest.predict(X_test)
 
-random_forest.score(X_train, Y_train)
 acc_random_forest = round(random_forest.score(X_train, Y_train) * 100, 2)
 print(round(acc_random_forest,2,), "%")
 
