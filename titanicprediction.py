@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 
 # machine learning
 from sklearn import model_selection
+from sklearn.decomposition import PCA
 
 # machine learning models
 from sklearn.linear_model import LogisticRegression
@@ -56,8 +57,8 @@ ax[2,2].set_title('Total Passengers by Embarked')
 ax[2,3].set_title('Survival Rate by Embarked')
 
 # we can now drop the cabin feature
-train_df.drop(['PassengerId', 'Cabin', 'Name', 'Ticket'], axis=1, inplace=True)
-test_df.drop(['Cabin', 'Name', 'Ticket'], axis=1, inplace=True)
+train_df.drop(['PassengerId', 'Cabin', 'Ticket'], axis=1, inplace=True)
+test_df.drop(['Cabin', 'Ticket'], axis=1, inplace=True)
 
 # 19% Age is missing, lets replace it by mean since it seems important
 train_df.Age.fillna(train_df.Age.mean(), inplace=True)
@@ -89,7 +90,42 @@ train_df.loc[(train_df['Age'] > 22) & (train_df['Age'] <= 27), 'Age'] = 3
 train_df.loc[(train_df['Age'] > 27) & (train_df['Age'] <= 33), 'Age'] = 4
 train_df.loc[(train_df['Age'] > 33) & (train_df['Age'] <= 40), 'Age'] = 5
 train_df.loc[(train_df['Age'] > 40) & (train_df['Age'] <= 66), 'Age'] = 6
-train_df.loc[train_df['Age'] > 66, 'Age'] = 6
+train_df.loc[train_df['Age'] > 66, 'Age'] = 7
+
+train_df['Title'] = train_df.Name.str.extract(' ([A-Za-z]+)\.', expand=False)
+
+train_df['Title'] = train_df['Title'].replace(['Lady', 'Countess','Capt', 'Col',\
+    'Don', 'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer', 'Dona'], 'Rare')
+
+train_df['Title'] = train_df['Title'].replace('Mlle', 'Miss')
+train_df['Title'] = train_df['Title'].replace('Ms', 'Miss')
+train_df['Title'] = train_df['Title'].replace('Mme', 'Mrs')
+train_df.drop(['Name'], axis=1, inplace=True)
+
+df_title = pd.get_dummies(train_df['Title'], drop_first=True)
+train_df.drop(['Title'], axis=1, inplace=True)
+train_df = pd.concat([train_df, df_title], axis=1)
+
+df = pd.get_dummies(train_df['Age'], drop_first=True)
+train_df.drop(['Age'], axis=1, inplace=True)
+train_df = pd.concat([train_df, df], axis=1)
+
+train_df['FamilySize'] = train_df['SibSp'] + train_df['Parch'] + 1
+train_df['IsAlone'] = 0
+train_df.loc[train_df['FamilySize'] == 1, 'IsAlone'] = 1
+
+train_df.loc[ train_df['Fare'] <= 7.91, 'Fare'] = 0
+train_df.loc[(train_df['Fare'] > 7.91) & (train_df['Fare'] <= 14.454), 'Fare'] = 1
+train_df.loc[(train_df['Fare'] > 14.454) & (train_df['Fare'] <= 31), 'Fare']   = 2
+train_df.loc[ train_df['Fare'] > 31, 'Fare'] = 3
+train_df['Fare'] = train_df['Fare'].astype(int)
+
+df_fare = pd.get_dummies(train_df['Fare'], drop_first=True)
+train_df.drop(['Fare'], axis=1, inplace=True)
+train_df = pd.concat([train_df, df_fare], axis=1)
+
+###############################
+
 
 test_df['Embarked'].fillna('S', inplace=True)
 
@@ -114,11 +150,49 @@ test_df.loc[(test_df['Age'] > 22) & (test_df['Age'] <= 27), 'Age'] = 3
 test_df.loc[(test_df['Age'] > 27) & (test_df['Age'] <= 33), 'Age'] = 4
 test_df.loc[(test_df['Age'] > 33) & (test_df['Age'] <= 40), 'Age'] = 5
 test_df.loc[(test_df['Age'] > 40) & (test_df['Age'] <= 66), 'Age'] = 6
-test_df.loc[test_df['Age'] > 66, 'Age'] = 6
+test_df.loc[test_df['Age'] > 66, 'Age'] = 7
 
-X_train = train_df.drop("Survived", axis=1)
+test_df['Title'] = test_df.Name.str.extract(' ([A-Za-z]+)\.', expand=False)
+
+test_df['Title'] = test_df['Title'].replace(['Lady', 'Countess','Capt', 'Col',\
+    'Don', 'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer', 'Dona'], 'Rare')
+
+test_df['Title'] = test_df['Title'].replace('Mlle', 'Miss')
+test_df['Title'] = test_df['Title'].replace('Ms', 'Miss')
+test_df['Title'] = test_df['Title'].replace('Mme', 'Mrs')
+test_df.drop(['Name'], axis=1, inplace=True)
+
+df_title2 = pd.get_dummies(test_df['Title'], drop_first=True)
+test_df.drop(['Title'], axis=1, inplace=True)
+test_df = pd.concat([test_df, df_title2], axis=1)
+
+df2 = pd.get_dummies(test_df['Age'], drop_first=True)
+test_df.drop(['Age'], axis=1, inplace=True)
+test_df = pd.concat([test_df, df2], axis=1)
+
+test_df['FamilySize'] = test_df['SibSp'] + test_df['Parch'] + 1
+test_df['IsAlone'] = 0
+test_df.loc[test_df['FamilySize'] == 1, 'IsAlone'] = 1
+
+test_df.loc[ test_df['Fare'] <= 7.91, 'Fare'] = 0
+test_df.loc[(test_df['Fare'] > 7.91) & (test_df['Fare'] <= 14.454), 'Fare'] = 1
+test_df.loc[(test_df['Fare'] > 14.454) & (test_df['Fare'] <= 31), 'Fare']   = 2
+test_df.loc[ test_df['Fare'] > 31, 'Fare'] = 3
+test_df['Fare'] = test_df['Fare'].astype(int)
+
+df_fare2 = pd.get_dummies(test_df['Fare'], drop_first=True)
+test_df.drop(['Fare'], axis=1, inplace=True)
+test_df = pd.concat([test_df, df_fare2], axis=1)
+
+X_train_df = train_df.drop("Survived", axis=1)
 Y_train = train_df["Survived"]
-X_test  = test_df.drop('PassengerId', axis=1).copy()
+X_test_df  = test_df.drop('PassengerId', axis=1).copy()
+
+pca = PCA(n_components=8)
+
+X_train = pca.fit_transform(X_train_df)
+
+X_test = pca.transform(X_test_df)
 
 seed = 7
 scoring = 'recall'
@@ -126,13 +200,23 @@ scoring = 'recall'
 # Spot Check Algorithms
 models = []
 models.append(('LR', LogisticRegression()))
+models.append(('RF', RandomForestClassifier(n_estimators=50)))
 models.append(('RF', RandomForestClassifier(n_estimators=100)))
-models.append(('NB', GaussianNB()))
-models.append(('LDA', LinearDiscriminantAnalysis()))
-models.append(('KNN', KNeighborsClassifier()))
-models.append(('CART', DecisionTreeClassifier()))
-models.append(('NB', GaussianNB()))
-models.append(('SVM', SVC()))
+models.append(('RF', RandomForestClassifier(n_estimators=150)))
+models.append(('RF', RandomForestClassifier(n_estimators=200)))
+models.append(('RF', RandomForestClassifier(n_estimators=250)))
+# models.append(('NB', GaussianNB()))
+# models.append(('LDA', LinearDiscriminantAnalysis()))
+# models.append(('KNN', KNeighborsClassifier()))
+# models.append(('CART', DecisionTreeClassifier()))
+# models.append(('NB', GaussianNB()))
+# models.append(('SVM2', SVC(kernel='rbf', gamma=0.8, C=0.6)))
+# models.append(('SVM2', SVC(kernel='rbf', gamma=0.8, C=0.7)))
+# models.append(('SVM3', SVC(kernel='rbf', gamma=0.8, C=0.8)))
+# models.append(('SVM4', SVC(kernel='rbf', gamma=0.8, C=0.9)))
+# models.append(('SVM5', SVC(kernel='rbf', gamma=0.8, C=1.0)))
+# models.append(('SVM5', SVC(kernel='rbf', gamma=0.8, C=1.1)))
+# models.append(('SVM5', SVC(kernel='rbf', gamma=0.8, C=1.2)))
 # evaluate each model in turn
 results = []
 names = []
@@ -145,7 +229,7 @@ for name, model in models:
     print(msg)
 
 # Random Forest
-random_forest = RandomForestClassifier(n_estimators=100)
+random_forest = RandomForestClassifier(n_estimators=150)
 random_forest.fit(X_train, Y_train)
 
 Y_prediction = random_forest.predict(X_test)
