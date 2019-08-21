@@ -14,7 +14,9 @@ from sklearn.decomposition import PCA
 
 # machine learning models
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, ExtraTreesClassifier, \
+    GradientBoostingClassifier, VotingClassifier
+from sklearn.model_selection import StratifiedKFold, GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.tree import DecisionTreeClassifier
@@ -194,48 +196,101 @@ X_train = pca.fit_transform(X_train_df)
 
 X_test = pca.transform(X_test_df)
 
-seed = 7
-scoring = 'recall'
+kfold = StratifiedKFold(n_splits=10)
 
-# Spot Check Algorithms
-models = []
-models.append(('LR', LogisticRegression()))
-models.append(('RF', RandomForestClassifier(n_estimators=50)))
-models.append(('RF', RandomForestClassifier(n_estimators=100)))
-models.append(('RF', RandomForestClassifier(n_estimators=150)))
-models.append(('RF', RandomForestClassifier(n_estimators=200)))
-models.append(('RF', RandomForestClassifier(n_estimators=250)))
-# models.append(('NB', GaussianNB()))
-# models.append(('LDA', LinearDiscriminantAnalysis()))
-# models.append(('KNN', KNeighborsClassifier()))
-# models.append(('CART', DecisionTreeClassifier()))
-# models.append(('NB', GaussianNB()))
-# models.append(('SVM2', SVC(kernel='rbf', gamma=0.8, C=0.6)))
-# models.append(('SVM2', SVC(kernel='rbf', gamma=0.8, C=0.7)))
-# models.append(('SVM3', SVC(kernel='rbf', gamma=0.8, C=0.8)))
-# models.append(('SVM4', SVC(kernel='rbf', gamma=0.8, C=0.9)))
-# models.append(('SVM5', SVC(kernel='rbf', gamma=0.8, C=1.0)))
-# models.append(('SVM5', SVC(kernel='rbf', gamma=0.8, C=1.1)))
-# models.append(('SVM5', SVC(kernel='rbf', gamma=0.8, C=1.2)))
-# evaluate each model in turn
-results = []
-names = []
-for name, model in models:
-    kfold = model_selection.KFold(n_splits=10, random_state=seed)
-    cv_results = model_selection.cross_val_score(model, X_train, Y_train, cv=kfold, scoring=scoring)
-    results.append(cv_results)
-    names.append(name)
-    msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
-    print(msg)
+# Adaboost
+DTC = DecisionTreeClassifier()
 
-# Random Forest
-random_forest = RandomForestClassifier(n_estimators=150)
-random_forest.fit(X_train, Y_train)
+adaDTC = AdaBoostClassifier(DTC, random_state=7)
 
-Y_prediction = random_forest.predict(X_test)
+ada_param_grid = {"base_estimator__criterion" : ["gini", "entropy"],
+              "base_estimator__splitter" :   ["best", "random"],
+              "algorithm" : ["SAMME","SAMME.R"],
+              "n_estimators" :[1,2],
+              "learning_rate":  [0.0001, 0.001, 0.01, 0.1, 0.2, 0.3,1.5]}
 
-acc_random_forest = round(random_forest.score(X_train, Y_train) * 100, 2)
-print(round(acc_random_forest,2,), "%")
+gsadaDTC = GridSearchCV(adaDTC,param_grid = ada_param_grid, cv=kfold, scoring="accuracy", n_jobs= 4, verbose = 1)
+
+gsadaDTC.fit(X_train, Y_train)
+
+ada_best = gsadaDTC.best_estimator_
+
+
+#ExtraTrees
+ExtC = ExtraTreesClassifier()
+
+
+## Search grid for optimal parameters
+ex_param_grid = {"max_depth": [None],
+              "min_samples_split": [2, 3, 10],
+              "min_samples_leaf": [1, 3, 10],
+              "bootstrap": [False],
+              "n_estimators" :[100,300],
+              "criterion": ["gini"]}
+
+
+gsExtC = GridSearchCV(ExtC,param_grid = ex_param_grid, cv=kfold, scoring="accuracy", n_jobs= 4, verbose = 1)
+
+gsExtC.fit(X_train, Y_train)
+
+ExtC_best = gsExtC.best_estimator_
+
+# RFC Parameters tunning
+RFC = RandomForestClassifier()
+
+
+## Search grid for optimal parameters
+rf_param_grid = {"max_depth": [None],
+              "min_samples_split": [2, 3, 10],
+              "min_samples_leaf": [1, 3, 10],
+              "bootstrap": [False],
+              "n_estimators" :[100,300],
+              "criterion": ["gini"]}
+
+
+gsRFC = GridSearchCV(RFC,param_grid = rf_param_grid, cv=kfold, scoring="accuracy", n_jobs= 4, verbose = 1)
+
+gsRFC.fit(X_train,Y_train)
+
+RFC_best = gsRFC.best_estimator_
+
+
+# Gradient boosting tunning
+
+GBC = GradientBoostingClassifier()
+gb_param_grid = {'loss' : ["deviance"],
+              'n_estimators' : [100,200,300],
+              'learning_rate': [0.1, 0.05, 0.01],
+              'max_depth': [4, 8],
+              'min_samples_leaf': [100,150],
+              'max_features': [0.3, 0.1]
+              }
+
+gsGBC = GridSearchCV(GBC,param_grid = gb_param_grid, cv=kfold, scoring="accuracy", n_jobs= 4, verbose = 1)
+
+gsGBC.fit(X_train,Y_train)
+
+GBC_best = gsGBC.best_estimator_
+
+
+### SVC classifier
+SVMC = SVC(probability=True)
+svc_param_grid = {'kernel': ['rbf'],
+                  'gamma': [ 0.001, 0.01, 0.1, 1],
+                  'C': [1, 10, 50, 100,200,300, 1000]}
+
+gsSVMC = GridSearchCV(SVMC,param_grid = svc_param_grid, cv=kfold, scoring="accuracy", n_jobs= 4, verbose = 1)
+
+gsSVMC.fit(X_train,Y_train)
+
+SVMC_best = gsSVMC.best_estimator_
+
+votingC = VotingClassifier(estimators=[('rfc', RFC_best), ('extc', ExtC_best),
+('svc', SVMC_best), ('adac',ada_best),('gbc',GBC_best)], voting='soft', n_jobs=4)
+
+votingC = votingC.fit(X_train, Y_train)
+
+Y_prediction = pd.Series(votingC.predict(X_test), name="Survived")
 
 submission = pd.DataFrame({
         "PassengerId": test_df["PassengerId"],
