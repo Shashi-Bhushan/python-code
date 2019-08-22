@@ -12,6 +12,8 @@ matplotlib = "*"
 scikit-learn = "*"
 seaborn = "*"
 statsmodels = "*"
+jupyter = "*"
+tqdm = "*"
 
 [requires]
 python_version = "3.6"
