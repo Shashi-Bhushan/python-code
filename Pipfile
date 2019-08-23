@@ -15,7 +15,6 @@ statsmodels = "*"
 jupyter = "*"
 tqdm = "*"
 msgpack = "*"
-pil = "*"
 pillow = "*"
 
 [requires]
