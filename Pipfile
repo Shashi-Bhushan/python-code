@@ -16,6 +16,8 @@ jupyter = "*"
 tqdm = "*"
 msgpack = "*"
 pillow = "*"
+tensorflow-gpu = "*"
+keras = "*"
 
 [requires]
 python_version = "3.6"
