@@ -21,6 +21,9 @@ keras = "*"
 xgboost = "*"
 jinja2 = "*"
 nltk = "*"
+pytest = "*"
+pytest-pep8 = "*"
+flask = "*"
 
 [requires]
 python_version = "3.6"
