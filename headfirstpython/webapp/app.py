@@ -2,30 +2,62 @@
 # -*- coding: utf-8 -*-
 # Author: Shashi Bhushan <sbhushan1 @ outlook dot com>
 
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, escape
 
 from vsearch import search_for_letters
 
 app = Flask(__name__)
-
+LOG_FILE = 'app.log'
 
 @app.route('/')
 @app.route('/entry')
 def home_page() -> 'html':
+    """Display this webapp's HTML form."""
     return render_template('searchform.html', the_title='Welcome to Search for Letters web app')
 
 
 @app.route('/search4', methods=['POST'])
 def do_search() -> 'html':
+    """Extract the posted data, perform the search and return results."""
     phrase = request.form['phrase']
     letters = request.form['letters']
+
+    results = str(search_for_letters(phrase, letters))
+    log_request(request, phrase, letters, results)
 
     return render_template('searchresults.html',
                            the_title='Search Results',
                            the_phrase=phrase,
                            the_letters=letters,
-                           the_results=str(search_for_letters(phrase, letters))
+                           the_results=results
                            )
 
 
-app.run()
+@app.route('/viewlog')
+def view_log() -> str:
+    """Display the contents of the log file as a String table."""
+    contents = []
+
+    with open(LOG_FILE) as app_log:
+        for line in app_log:
+            contents.append([])
+
+            for item in line.split('|'):
+                contents[-1].append(escape(item))
+
+    # return str(contents)
+    return render_template('viewlog.html',
+                           the_title='View Log',
+                           the_row_titles=('Form Data', 'Remote Address', 'User Agent', 'Phrase', 'Letters',
+                                           'Results'),
+                           the_data=contents, )
+
+
+def log_request(req: 'flask_request', phrase: str, letters: str, res: str) -> None:
+    """Log details of the web request and the results."""
+    with open(LOG_FILE, 'a') as app_log:
+        print(req.form, req.remote_addr, req.user_agent, phrase, letters, res, file=app_log, sep='|')
+
+
+if __name__ == '__main__':
+    app.run()
