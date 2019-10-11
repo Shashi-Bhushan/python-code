@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+    <form method="post" action="/search4">
+        <p>Use this form to submit a search request to webapp: </p>
+        <table>
+            <tr>
+                <th>Phrase :</th>
+                <td>
+                    <input type="text" name="phrase" width="60">
+                </td>
+            </tr>
+            <tr>
+                <th>Letters :</th>
+                <td>
+                    <input type="text" name="letters" value="aeiou" width="60">
+                </td>
+            </tr>
+        </table>
+
+        <p>
+            <input type="submit" value="Do Search" />
+        </p>
+
+    </form>
+
+{% endblock %}

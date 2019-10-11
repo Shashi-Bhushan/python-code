@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Author: Shashi Bhushan <sbhushan1@outlook.com>
+# Author: Shashi Bhushan <sbhushan1 @ outlook dot com>
 
 
 import matplotlib.pyplot as plt
