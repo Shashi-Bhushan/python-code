@@ -7,7 +7,14 @@ from flask import Flask, request, render_template, escape
 from vsearch import search_for_letters
 
 app = Flask(__name__)
+app.config['dbconfig'] = {
+    'host': '127.0.0.1',
+    'user': 'vsearch',
+    'password': 'vsearchpasswd',
+    'database': 'vsearchlogDB',
+}
 LOG_FILE = 'app.log'
+
 
 @app.route('/')
 @app.route('/entry')
@@ -45,18 +52,35 @@ def view_log() -> str:
             for item in line.split('|'):
                 contents[-1].append(escape(item))
 
-    # return str(contents)
+    with UseDatabase(app.config['dbconfig']) as cursor:
+        _SQL = """select phrase, letters, ip, browser_string, results
+                  from log"""
+        cursor.execute(_SQL)
+        contents = cursor.fetchall()
+    titles = ('Phrase', 'Letters', 'Remote Address', 'User agent', 'Results')
+
     return render_template('viewlog.html',
                            the_title='View Log',
-                           the_row_titles=('Form Data', 'Remote Address', 'User Agent', 'Phrase', 'Letters',
-                                           'Results'),
+                           the_row_titles=titles,
                            the_data=contents, )
 
 
-def log_request(req: 'flask_request', phrase: str, letters: str, res: str) -> None:
+def log_request(req: 'flask_request', res: str) -> None:
     """Log details of the web request and the results."""
     with open(LOG_FILE, 'a') as app_log:
-        print(req.form, req.remote_addr, req.user_agent, phrase, letters, res, file=app_log, sep='|')
+        print(req.form, req.remote_addr, req.user_agent, req.form['phrase'], req.form['letters'], res, file=app_log,
+              sep='|')
+
+    with UseDataBase(app.config['dbconfig']) as cursor:
+        _SQL = """insert into log
+                          (phrase, letters, ip, browser_string, results)
+                          values
+                          (%s, %s, %s, %s, %s)"""
+        cursor.execute(_SQL, (req.form['phrase'],
+                              req.form['letters'],
+                              req.remote_addr,
+                              req.user_agent.browser,
+                              res,))
 
 
 if __name__ == '__main__':
