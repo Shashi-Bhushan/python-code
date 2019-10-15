@@ -24,6 +24,7 @@ nltk = "*"
 pytest = "*"
 pytest-pep8 = "*"
 flask = "*"
+mysql = "*"
 
 [requires]
 python_version = "3.6"

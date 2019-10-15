@@ -6,6 +6,8 @@ from flask import Flask, request, render_template, escape
 
 from vsearch import search_for_letters
 
+from dbcm import UseDatabase
+
 app = Flask(__name__)
 app.config['dbconfig'] = {
     'host': '127.0.0.1',
@@ -30,7 +32,7 @@ def do_search() -> 'html':
     letters = request.form['letters']
 
     results = str(search_for_letters(phrase, letters))
-    log_request(request, phrase, letters, results)
+    log_request(request, results)
 
     return render_template('searchresults.html',
                            the_title='Search Results',
@@ -71,7 +73,7 @@ def log_request(req: 'flask_request', res: str) -> None:
         print(req.form, req.remote_addr, req.user_agent, req.form['phrase'], req.form['letters'], res, file=app_log,
               sep='|')
 
-    with UseDataBase(app.config['dbconfig']) as cursor:
+    with UseDatabase(app.config['dbconfig']) as cursor:
         _SQL = """insert into log
                           (phrase, letters, ip, browser_string, results)
                           values

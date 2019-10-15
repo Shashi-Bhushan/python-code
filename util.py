@@ -6,6 +6,8 @@
 import matplotlib.pyplot as plt
 from numpy.polynomial.polynomial import polyfit
 
+print("Loading Util")
+
 
 def plot_df(dataframe, fignum, title):
     plt.figure(fignum, figsize=(6, 6), dpi=60)
