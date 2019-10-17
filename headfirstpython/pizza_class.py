@@ -18,6 +18,10 @@ class Pizza:
     def static_method() -> None:
         print(f'Calling Static method')
 
+    @staticmethod
+    def static_method2() -> None:
+        print(f'Calling Static method')
+
     @classmethod
     def margarita(cls):
         return cls(['mozzarella', 'tomato'])
@@ -48,3 +52,10 @@ if __name__ == '__main__':
 
     # Usage of Static Method
     # Used as a util method which does not use attributes of class
+
+    print(id(Pizza))
+    print(id(Pizza.margarita))
+    print(id(Pizza.prosciutto))
+    print(id(Pizza.class_method))
+    print(id(Pizza.static_method))
+    print(id(Pizza.static_method2))
