@@ -1,6 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Author: Shashi Bhushan <sbhushan1 @ outlook dot com>
+
 """
 Problem Statement: Check if the array is sorted by using Recursion
 """
+
 
 def check_sorted(arr):
     # arr[0] = 0

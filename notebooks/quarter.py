@@ -4,7 +4,7 @@
 
 import pandas as pd
 
-import util
+from notebooks import util
 
 
 def main():
