@@ -6,7 +6,7 @@ from flask import Flask, request, render_template, escape
 
 from vsearch import search_for_letters
 
-from dbcm import UseDatabase
+from dbcm import UseDatabase, DBConnectionError, CredentialsError, SQLError
 
 app = Flask(__name__)
 app.config['dbconfig'] = {
@@ -44,27 +44,32 @@ def do_search() -> 'html':
 
 @app.route('/viewlog')
 def view_log() -> str:
-    """Display the contents of the log file as a String table."""
-    contents = []
+    """Display the contents of the log file as a String table.
 
-    with open(LOG_FILE) as app_log:
-        for line in app_log:
-            contents.append([])
+    Don't import mysql errors here, since it will tightly couple your code with MySQL code.
+    All the code specific to Database should be inside dbcm.py only.
+    """
+    try:
+        with UseDatabase(app.config['dbconfig']) as cursor:
+            _SQL = """select phrase, letters, ip, browser_string, results
+                      from log"""
+            cursor.execute(_SQL)
+            contents = cursor.fetchall()
+        titles = ('Phrase', 'Letters', 'Remote Address', 'User agent', 'Results')
 
-            for item in line.split('|'):
-                contents[-1].append(escape(item))
-
-    with UseDatabase(app.config['dbconfig']) as cursor:
-        _SQL = """select phrase, letters, ip, browser_string, results
-                  from log"""
-        cursor.execute(_SQL)
-        contents = cursor.fetchall()
-    titles = ('Phrase', 'Letters', 'Remote Address', 'User agent', 'Results')
-
-    return render_template('viewlog.html',
-                           the_title='View Log',
-                           the_row_titles=titles,
-                           the_data=contents, )
+        return render_template('viewlog.html',
+                               the_title='View Log',
+                               the_row_titles=titles,
+                               the_data=contents, )
+    except DBConnectionError as err:
+        print('Is your database switched on? Error:', str(err))
+    except CredentialsError as err:
+        print('User-id/Password issues. Error:', str(err))
+    except SQLError as err:
+        print('Is your query correct? Error:', str(err))
+    except Exception as err:
+        print('Something went wrong:', str(err))
+    return 'Error'
 
 
 def log_request(req: 'flask_request', res: str) -> None:
