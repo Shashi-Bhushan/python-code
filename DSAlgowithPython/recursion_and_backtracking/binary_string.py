@@ -26,7 +26,12 @@ def binary_strings(num: int) -> list:
         # Similarly, I will also append 1 to this making it ['10', '01']
         # In the end, I will add these two lists together. In python, + does that for me.
 
-        return ['0' + digit for digit in binary_strings(num - 1)] + ['1' + digit for digit in binary_strings(num - 1)]
+        # return ['0' + digit for digit in binary_strings(num - 1)] + ['1' + digit for digit in binary_strings(num - 1)]
+
+        # Since I could fetch ['0', '1'] with binary_string(1) call,
+        # lets replace this with another for loop just to make the solution generic enough
+
+        return [bit + digit for bit in binary_strings(1) for digit in binary_strings(num - 1)]
 
 
 if __name__ == '__main__':
