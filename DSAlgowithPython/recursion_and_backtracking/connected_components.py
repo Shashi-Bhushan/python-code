@@ -37,22 +37,22 @@ class Node:
 
         # Left Bound Check
         if row - 1 >= 0:
-            node = Node(val=matrix[row - 1][column].val, position=(row - 1, column))
+            node = matrix[row - 1][column]
             nodes.append(node)
 
         # Right Bound Check
         if row + 1 <= len(matrix[0]) - 1:
-            node = Node(val=matrix[row + 1][column].val, position=(row + 1, column))
+            node = matrix[row + 1][column]
             nodes.append(node)
 
         # Upper Bound Check
         if column - 1 >= 0:
-            node = Node(val=matrix[row][column - 1].val, position=(row, column - 1))
+            node = matrix[row][column - 1]
             nodes.append(node)
 
         # Lower Bound Check
         if column + 1 <= len(matrix) - 1:
-            node = Node(val=matrix[row][column + 1].val, position=(row, column + 1))
+            node = matrix[row][column + 1]
             nodes.append(node)
 
         return nodes
@@ -85,7 +85,7 @@ class Node:
         return node_matrix
 
 
-def get_all_connected_components(node: Node, matrix: list, visited_matrix: set=None) -> list:
+def get_all_connected_components(node: Node, matrix: list, visited_matrix: set = None) -> list:
     """Returns all connected components with same value recursively
 
     :returns
@@ -101,10 +101,10 @@ def get_all_connected_components(node: Node, matrix: list, visited_matrix: set=N
         - Get all connected components of the neighbour node and add to Nodes
 
     """
-    visited_matrix: set[Node] = visited_matrix or set()
+    visited_matrix: set = visited_matrix or set()
     visited_matrix.add(node)
 
-    nodes: list[Node] = []
+    nodes: list = []
 
     for neighbour in node.same_value_neighbours(matrix):
         if neighbour not in visited_matrix:
