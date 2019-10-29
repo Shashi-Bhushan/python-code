@@ -14,7 +14,7 @@ def binary_string_non_recur(num: int) -> list:
     return [''.join(p) for p in product('10', repeat=num)]
 
 
-def binary_strings(num: int) -> list:
+def binary_strings_for_loop(num: int) -> list:
     """Generate all binary strings with n bits recursively"""
     if num == 0:
         return []
@@ -31,7 +31,27 @@ def binary_strings(num: int) -> list:
         # Since I could fetch ['0', '1'] with binary_string(1) call,
         # lets replace this with another for loop just to make the solution generic enough
 
-        return [bit + digit for bit in binary_strings(1) for digit in binary_strings(num - 1)]
+        return [bit + digit for bit in binary_strings_for_loop(1) for digit in binary_strings_for_loop(num - 1)]
+
+
+def binary_string(depth: int):
+    """
+    Returns Binary String having specified depth
+    :type depth: int
+    """
+    if depth == 0:
+        return []
+    elif depth == 1:
+        return ['0', '1']
+    else:
+        l1 = binary_string(depth - 1)
+        l2 = binary_string(depth - 1)
+
+        for index, item in enumerate(l1):
+            l1[index] = '0' + l1[index]
+            l2[index] = '1' + l2[index]
+
+        return l1 + l2
 
 
 if __name__ == '__main__':
@@ -40,7 +60,7 @@ if __name__ == '__main__':
 
     print(f'Binary Strings with {n} bits : {bin_non_recur}')
 
-    bin_recur = binary_strings(n)
+    bin_recur = binary_strings_for_loop(n)
 
     print(f'Binary Strings (using Recursion) with {n} bits : {bin_recur}')
 
