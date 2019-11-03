@@ -41,7 +41,7 @@ class Node:
             nodes.append(node)
 
         # Right Bound Check
-        if row + 1 <= len(matrix[0]) - 1:
+        if row + 1 < len(matrix[0]):
             node = matrix[row + 1][column]
             nodes.append(node)
 
@@ -51,7 +51,7 @@ class Node:
             nodes.append(node)
 
         # Lower Bound Check
-        if column + 1 <= len(matrix) - 1:
+        if column + 1 < len(matrix):
             node = matrix[row][column + 1]
             nodes.append(node)
 
