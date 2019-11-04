@@ -42,8 +42,26 @@ class LinkedList(object):
 
             self.length += 1
 
-    def insert_at_end(self, node: Node) -> Node:
+    def insert_at_end(self, node: Node) -> None:
         self.insert_at_index(node, self.length)
+
+    def delete_from_beginning(self):
+        self.head = self.head.next
+        self.length -= 1
+
+    def delete_from_index(self, index):
+        current = self.head
+        current_index = 1
+
+        while current_index != index:
+            current = current.next
+            current_index += 1
+
+        current.next = current.next.next
+        self.length -= 1
+
+    def delete_from_end(self):
+        self.delete_from_index(self.length - 1)
 
     def __repr__(self):
         string = ''
@@ -66,9 +84,13 @@ if __name__ == '__main__':
     print(linked_list)
     linked_list.insert_at_beginning(Node(6))
     print(linked_list)
-    linked_list.insert_at_index(Node(1), 1)
+    linked_list.insert_at_index(Node(16), 1)
     print(linked_list)
     linked_list.insert_at_index(Node(12), 2)
     print(linked_list)
     linked_list.insert_at_end(Node(10))
+    print(linked_list)
+    linked_list.delete_from_index(3)
+    print(linked_list)
+    linked_list.delete_from_end()
     print(linked_list)
